@@ -1,10 +1,9 @@
 # chess-game
 Its is the simply chess game which i am already creating. I am in the middle of my way to finish this project and it's not ended version but it shows my programming skills and knowledge in python language.
 
-Git w kilku komendach
+## Git w kilku komendach
 
-
-Pierwsze kroki
+### Pierwsze kroki
 
 git clone https://github.com/RadoslawPiotrowski/chess-game.git - pobranie repozytorium
 
@@ -13,7 +12,7 @@ git config --global user.name "John Doe" - ustawienie nazwy autora commitów
 git config --global user.email "john@example.com" - ustawienie maila autora commitów
 
 
-Komunikacja z serwerem
+### Komunikacja z serwerem
 
 git pull - ściągnięcie z serwera zmian na bieżącej gałęzi
 
@@ -22,7 +21,7 @@ git fetch - ściągnięcie z serwera zmian na wszystkich gałęziach
 git push - wypchnięcie zcommitowanych zmian na serwer
 
 
-Operacje na gałęziach
+### Operacje na gałęziach
 
 git checkout <nazwa gałęzi> - zmiana gałęzi na inną istniejącą
 
@@ -33,7 +32,7 @@ git branch - lista gałęzi
 git branch -d - usunięcie gałęzi lokalnie (na serwerze można usunąć przez GUI)
 
 
-Obsługa commita
+### Obsługa commita
 
 git status - stan lokalnego repo - lista zmienionych plików, różnice między origin a local
 
