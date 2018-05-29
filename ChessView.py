@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
 from PyQt5 import QtCore
 from PyQt5.QtGui import QColor
 from BoardField import BoardField
-from xml.etree.ElementTree import Element, SubElement, Comment, tostring, ElementTree
+from xml.etree.ElementTree import Element
 from xml.etree import ElementTree as ET
 from xml.dom import minidom
 import os.path
@@ -42,12 +42,20 @@ class ChessView(QGraphicsView):
         self.moveFigure = [(-1,-1),(-1,-1)]
         self.playerRound = "white"
         self.readyToMoveFigure = False
+
         self.possibleMoves = []
+
+        self.blackPossibleMoves = None
+        self.whitePossibleMoves = None
+
+        # XML part
         self.replayMode = False
         self.readedXML = None
         self.indexOfReplayNode = 0
         # CREATING NEW XML FILE THERE WE WILL SAVE THE DATA
         self.createXmlFile()
+
+        # Self playing algorithm
 
 # --------------- Generating game ---------------------
     def resetTheGame(self):
@@ -78,7 +86,7 @@ class ChessView(QGraphicsView):
         for i in range(self.boardWidht):
             print("")
             for j in range(self.boardHeight):
-                print(self.gameBoard[i*self.boardWidht + j].getBoardPostion(), end = " ")
+                print(self.gameBoard[i*self.boardWidht + j].getBoardPosition(), end =" ")
                 print(self.gameBoard[i*self.boardWidht + j].getFieldPosition(), end = " ")
 
     def translateCordinatesIntoPositionInBoardArray(self, cordinates):
@@ -106,7 +114,6 @@ class ChessView(QGraphicsView):
 # --------------- Making move --------------------------------------
     def makeFigureMove(self, move):
         self.moveFigure = move
-        print(self.moveFigure)
         self.gameBoard[0].moveTheFigureToPlace()
 
     def highlightPossibleFieldMoves(self):
@@ -121,6 +128,40 @@ class ChessView(QGraphicsView):
                 if self.gameBoard[i*self.boardWidht + j].getHighlightField():
                     self.gameBoard[i*self.boardWidht + j].highlightField = False
                     self.gameBoard[i*self.boardWidht + j].updateSelf()
+
+# --------------- AI playing ------------------------------------
+
+    def refreshPlayerPossibleMoves(self, player):
+        possibleMoves = []
+        for field in self.gameBoard:
+            if field.isItPlayersFigure():
+                idxFieldWithFigure = field.translateCordinatesIntoPositionInBoardArray(field.translateFieldPositionIntoCordinates())
+                possibleMovesFromTheField = self.setDictOfPossibleMovesFromField(idxFieldWithFigure)
+                if possibleMovesFromTheField != None:
+                    possibleMoves.append(possibleMovesFromTheField)
+        if player == "white":
+            self.whitePossibleMoves = possibleMoves
+        elif player == "black":
+            self.blackPossibleMoves = possibleMoves
+        else:
+            print("MISTAKE")
+
+
+    def setDictOfPossibleMovesFromField(self, idxFieldWithFigure):
+        idxOfField = idxFieldWithFigure
+        self.gameBoard[idxOfField].figureChild.setMovePosibilities(self.gameBoard)
+        figurePosibleMoves = self.gameBoard[idxOfField].figureChild.getMovePosibilities()
+        dicRecordToAdd = self.createDictRecordOfFieldAndMoveOpportunity(idxOfField, figurePosibleMoves)
+        return dicRecordToAdd
+
+    def createDictRecordOfFieldAndMoveOpportunity(self, key, possibleMovesList):
+        d = None
+        if len(possibleMovesList) != 0:
+            d = {}
+            d[str(key)] = possibleMovesList
+        return d
+
+
 
 # --------------- Replay Mode on ---------------------------------
     def turnReplayMode(self):
@@ -139,7 +180,6 @@ class ChessView(QGraphicsView):
         moveToSave = str(self.moveFigure[0][0]) + "," + str(self.moveFigure[0][1]) + "," + str(self.moveFigure[1][0]) + "," + str(self.moveFigure[1][1])
         child.text = moveToSave
         tree.write(self.pathToXML)
-        print(self.prettify(root))
         self.saveXmlAsPretty(root)
 
     def prettify(self, elem):
@@ -156,7 +196,6 @@ class ChessView(QGraphicsView):
 # ---------------- creating xml file -----------------------------------
     def createXmlFile(self):
         trunk = Element('game')
-        print(self.prettify(trunk))
         tree = ET.ElementTree(trunk)
         while(os.path.isfile(self.pathToXML)):
             newpathToXMLFile = self.getNumberToCreateNewXMLFile(self.pathToXML)

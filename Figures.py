@@ -114,11 +114,8 @@ class Pawn(Figure):
 
     def refreshFigureMovePosibilities(self, gameBoard = None):
         self.setMovePosibilities(gameBoard)
-        # print(self.getMovePosibilities())
 
     def checkIfFirstMoveDone(self):
-        # print("TU WBILEM")
-        # print(self.boardPosition)
         if self.figureColor == "white":
             if self.boardPosition[1] == "2":
                 self.firstMoveDone = False
@@ -127,7 +124,6 @@ class Pawn(Figure):
             if self.boardPosition[1] == "7":
                 self.firstMoveDone = False
             else: self.firstMoveDone = True
-        # print(self.firstMoveDone)
 
     def setAttackFields(self):
         xPos, yPos = self.translateBoardPositionIntoPositionInBoardArray()
@@ -154,7 +150,6 @@ class Pawn(Figure):
     def setMovePosibilities(self, gameBoard = None):
         xPos, yPos = self.translateBoardPositionIntoPositionInBoardArray()
         movePosibility = []
-        # print("TUTAJ")
         self.setAttackFields()
         self.checkIfFirstMoveDone()
         if self.figureColor == "white":
@@ -256,12 +251,10 @@ class Queen(Figure):
 
     def refreshFigureMovePosibilities(self, gameBoard = None):
         self.setMovePosibilities(gameBoard)
-        print(self.getMovePosibilities())
 
     def setAttackFields(self, gameBoard):
         xPos, yPos = self.translateBoardPositionIntoPositionInBoardArray()
         attackFields = []
-        print("ATACK POSIBILITIS")
         self.checkVerticalFigureAttackFields((xPos,yPos),gameBoard)
         self.attackFields = attackFields
         return attackFields
@@ -269,7 +262,6 @@ class Queen(Figure):
     def setMovePosibilities(self, gameBoard = None):
         xPos, yPos = self.translateBoardPositionIntoPositionInBoardArray()
         movePosibility = []
-        print("MOVE POSIBILITIS")
         self.setAttackFields(gameBoard)
         self.movePosibilities = movePosibility
         return movePosibility
@@ -297,11 +289,8 @@ class Knight(Figure):
 
     def refreshFigureMovePosibilities(self, gameBoard = None):
         self.setMovePosibilities(gameBoard)
-        print(self.getMovePosibilities())
 
     def checkIfFirstMoveDone(self):
-        print("TU WBILEM")
-        print(self.boardPosition)
         if self.figureColor == "white":
             if self.boardPosition[1] == "2":
                 self.firstMoveDone = False
@@ -310,7 +299,7 @@ class Knight(Figure):
             if self.boardPosition[1] == "7":
                 self.firstMoveDone = False
             else: self.firstMoveDone = True
-        print(self.firstMoveDone)
+
 
     def setAttackFields(self):
         xPos, yPos = self.translateBoardPositionIntoPositionInBoardArray()
@@ -385,10 +374,9 @@ class Rook(Figure):
 
     def refreshFigureMovePosibilities(self, gameBoard = None):
         self.setMovePosibilities(gameBoard)
-        print(self.getMovePosibilities())
+
 
     def checkIfFirstMoveDone(self):
-        print(self.boardPosition)
         if self.figureColor == "white":
             if self.boardPosition[1] == "2":
                 self.firstMoveDone = False
@@ -397,7 +385,7 @@ class Rook(Figure):
             if self.boardPosition[1] == "7":
                 self.firstMoveDone = False
             else: self.firstMoveDone = True
-        print(self.firstMoveDone)
+
 
     def setAttackFields(self):
         xPos, yPos = self.translateBoardPositionIntoPositionInBoardArray()
@@ -472,10 +460,8 @@ class Bishop(Figure):
 
     def refreshFigureMovePosibilities(self, gameBoard = None):
         self.setMovePosibilities(gameBoard)
-        print(self.getMovePosibilities())
 
     def checkIfFirstMoveDone(self):
-        print(self.boardPosition)
         if self.figureColor == "white":
             if self.boardPosition[1] == "2":
                 self.firstMoveDone = False
@@ -484,7 +470,6 @@ class Bishop(Figure):
             if self.boardPosition[1] == "7":
                 self.firstMoveDone = False
             else: self.firstMoveDone = True
-        print(self.firstMoveDone)
 
     def setAttackFields(self):
         xPos, yPos = self.translateBoardPositionIntoPositionInBoardArray()

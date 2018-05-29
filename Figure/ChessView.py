@@ -85,5 +85,5 @@ class ChessView(QGraphicsView):
         for i in range(self.boardWidht):
             print("")
             for j in range(self.boardHeight):
-                print(self.gameBoard[i*self.boardWidht + j].getBoardPostion(), end = " ")
+                print(self.gameBoard[i*self.boardWidht + j].getBoardPosition(), end =" ")
                 print(self.gameBoard[i*self.boardWidht + j].getFieldPosition(), end = " ")

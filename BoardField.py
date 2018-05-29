@@ -151,6 +151,7 @@ class BoardField(QGraphicsItem):
             self.gameHandler.playerRound = "black"
         elif self.gameHandler.playerRound == "black":
             self.gameHandler.playerRound = "white"
+        self.gameHandler.refreshPlayerPossibleMoves(self.gameHandler.playerRound)
 
     def moveTheFigureToPlace(self):
         figureMove = self.gameHandler.moveFigure
@@ -171,8 +172,6 @@ class BoardField(QGraphicsItem):
     def resetFigureMoveArray(self):
         self.gameHandler.moveFigure = [(-1,-1),(-1,-1)]
 
-
-
     def checkIfNotTheSameColor(self, figureMove):
         terminalField = self.translateCordinatesIntoPositionInBoardArray(figureMove[1])
         if self.gameHandler.gameBoard[terminalField].figureChild != None:
@@ -183,8 +182,6 @@ class BoardField(QGraphicsItem):
         else:
             possibilityOfMove = True
         return possibilityOfMove
-
-
 
     def setBoardPosition(self):
         self.boardSize = 8 * self.squareSize + 2 * self.boardOffset
@@ -198,7 +195,7 @@ class BoardField(QGraphicsItem):
         yPos = (self.boardSize - self.squareSize - self.yPosition) // self.squareSize
         return(xPos, yPos)
 
-    def getBoardPostion(self):
+    def getBoardPosition(self):
         return self.boardPosition
 
     def getFigureColor(self):
