@@ -48,6 +48,8 @@ class ChessView(QGraphicsView):
         self.blackPossibleMoves = None
         self.whitePossibleMoves = None
 
+        self.computerListToCheck = None
+
         # XML part
         self.replayMode = False
         self.readedXML = None
@@ -146,7 +148,6 @@ class ChessView(QGraphicsView):
         else:
             print("MISTAKE")
 
-
     def setDictOfPossibleMovesFromField(self, idxFieldWithFigure):
         idxOfField = idxFieldWithFigure
         self.gameBoard[idxOfField].figureChild.setMovePosibilities(self.gameBoard)
@@ -160,6 +161,8 @@ class ChessView(QGraphicsView):
             d = {}
             d[str(key)] = possibleMovesList
         return d
+
+
 
 
 

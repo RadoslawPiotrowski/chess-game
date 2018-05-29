@@ -11,6 +11,7 @@ class BoardField(QGraphicsItem):
         self.yPosition = yPosition
         self.fieldColor = color
         self.squareSize = squareSize
+        self.fieldPoint = 0
         self.boardOffset = boardOffset
         self.figureChild = figureChild
         self.gameHandler = parent
