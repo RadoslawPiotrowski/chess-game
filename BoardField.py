@@ -3,6 +3,7 @@ from PyQt5 import QtCore
 from Figures import *
 from PyQt5.QtGui import QPixmap
 
+
 class BoardField(QGraphicsItem):
     def __init__(self, xPosition, yPosition, color = None, squareSize = None, boardOffset = None, figureChild = None, parent = None):
         super(QGraphicsItem, self).__init__()
@@ -19,6 +20,9 @@ class BoardField(QGraphicsItem):
         self.boardPosition = self.setBoardPosition()
         self.addFiguresToBoard()
 
+    def __del__(self):
+        print (self.id, ' died')
+
     def getHighlightField(self):
         return self.highlightField
 
@@ -29,6 +33,7 @@ class BoardField(QGraphicsItem):
     def addWhiteFigures(self):
         if self.fieldNumber == "2":
             self.addPawn("white")
+            pass
         elif self.boardPosition == "D1":
             self.addQueen("white")
         elif self.boardPosition == "E1":
@@ -43,6 +48,7 @@ class BoardField(QGraphicsItem):
     def addBlackFigures(self):
         if self.fieldNumber == "7":
             self.addPawn("black")
+            pass
         elif self.boardPosition == "D8":
             self.addQueen("black")
         elif self.boardPosition == "E8":
@@ -76,36 +82,56 @@ class BoardField(QGraphicsItem):
         return self.rectF
 
     def mousePressEvent(self, QGraphicsSceneMouseEvent):
-        if self.checkIfCorrectClicked() and self.gameHandler.figureChosen == False:             #kliknięta odpowiednia figura
-            ifFirstMove = self.gameHandler.figureChosen = True
-            self.saveTheSourceMove(ifFirstMove)
-            self.figureChild.refreshFigureMovePosibilities(self.gameHandler.gameBoard)
-            self.gameHandler.possibleMoves = self.figureChild.getMovePosibilities()
-            self.gameHandler.highlightPossibleFieldMoves()
-            print(self.figureChild.getFigureBoardPosition())
-            print(self.figureChild.getMovePosibilities())
-
-        elif self.checkIfCorrectClicked() and self.gameHandler.figureChosen == True:            #kliknięta inna nasza figura
-            self.gameHandler.notHighlightAllFields()
-            ifFirstMove = self.gameHandler.figureChosen = True
-            self.saveTheSourceMove(ifFirstMove)
-            self.figureChild.refreshFigureMovePosibilities(self.gameHandler.gameBoard)
-            self.gameHandler.possibleMoves = self.figureChild.getMovePosibilities()
-            self.gameHandler.highlightPossibleFieldMoves()
-                          # Tu printujemy brak możliwości ruchu wybierz inne pole
-        elif self.gameHandler.figureChosen == True:                                             #kliknięte odpowiednie pole
-            ifFirstMove = self.gameHandler.figureChosen = False
-            self.saveTheSourceMove(ifFirstMove)
-            if self.checkIfNotTheSameColor(self.gameHandler.moveFigure) and self.moveIsValid():
-                    self.changeRound()
-                    self.moveTheFigureToPlace(self.gameHandler.moveFigure)
-                    self.resetFigureMoveArray()             # właściwy ruch
-                    self.gameHandler.notHighlightAllFields()
-            else:
-                self.gameHandler.figureChosen = True
-                print("RUCH NIE MOZLIWY")
-        # print(self.gameHandler.getClickedFigurePosition())
+        if self.gameHandler.replayMode == False:
+            if self.isItPlayersFigure() and self.gameHandler.readyToMoveFigure == False:
+                self.chooseMovingFigure()
+            elif self.isItPlayersFigure() and self.gameHandler.readyToMoveFigure == True:            #kliknięta inna nasza figura
+                self.changeMovingFigure()
+            elif self.isItPlayersFigure() == False and self.gameHandler.readyToMoveFigure == True:                                             #kliknięte odpowiednie pole
+                self.gameHandler.readyToMoveFigure = False
+                self.saveTheSourceMove()
+                if self.moveIsValid():
+                    self.chooseMovingDestination()
+                else:
+                    self.gameHandler.readyToMoveFigure = True
+                    print("NIE WŁAŚCIWY RUCH")
+        # self.gameHandler.debugPrint()
         self.update()
+
+    def chooseMovingDestination(self):
+        self.changeRound()
+        self.moveTheFigureToPlace()
+        self.gameHandler.saveMoveToXml()
+        self.resetFigureMoveArray()
+        self.gameHandler.notHighlightAllFields()
+
+    def changeMovingFigure(self):
+        self.gameHandler.notHighlightAllFields()
+        self.chooseMovingFigure()
+
+    def chooseMovingFigure(self):
+        self.gameHandler.readyToMoveFigure = True
+        self.saveTheSourceMove()
+        self.figureChild.refreshFigureMovePosibilities(self.gameHandler.gameBoard)
+        self.gameHandler.possibleMoves = self.figureChild.getMovePosibilities()
+        self.gameHandler.highlightPossibleFieldMoves()
+
+    def saveTheSourceMove(self):
+        source = self.translateFieldPositionIntoCordinates()
+        if self.gameHandler.readyToMoveFigure == True:
+            self.gameHandler.moveFigure[0] = source
+        elif self.gameHandler.readyToMoveFigure == False:
+            self.gameHandler.moveFigure[1] = source
+
+    def isItPlayersFigure(self):
+        playerColor = self.gameHandler.playerRound
+        posibleToChose = False
+        if self.figureChild != None:
+            if playerColor == self.figureChild.getFigureColor():
+                posibleToChose = True
+            else:
+                posibleToChose = False
+        return posibleToChose
 
     def setHighlightPossibleMoveFields(self):
         self.highlightField = True
@@ -126,15 +152,16 @@ class BoardField(QGraphicsItem):
         elif self.gameHandler.playerRound == "black":
             self.gameHandler.playerRound = "white"
 
-    def moveTheFigureToPlace(self, figureMove):
+    def moveTheFigureToPlace(self):
+        figureMove = self.gameHandler.moveFigure
         initialField = self.translateCordinatesIntoPositionInBoardArray(figureMove[0])
         terminalField = self.translateCordinatesIntoPositionInBoardArray(figureMove[1])
         self.gameHandler.gameBoard[terminalField].figureChild = self.gameHandler.gameBoard[initialField].figureChild
         self.gameHandler.gameBoard[terminalField].updateFigurePosition()
-        print(self.gameHandler.gameBoard[terminalField].figureChild.getFigureBoardPosition())
         self.gameHandler.gameBoard[initialField].figureChild = None
         self.gameHandler.gameBoard[terminalField].figureChild.refreshFigureMovePosibilities(self.gameHandler.gameBoard)
         self.gameHandler.gameBoard[initialField].updateSelf()
+        self.gameHandler.gameBoard[terminalField].updateSelf()
 
     def translateCordinatesIntoPositionInBoardArray(self, cordinates):
         xPos = cordinates[0]
@@ -144,12 +171,7 @@ class BoardField(QGraphicsItem):
     def resetFigureMoveArray(self):
         self.gameHandler.moveFigure = [(-1,-1),(-1,-1)]
 
-    def saveTheSourceMove(self, ifFirstClick):
-        source = self.translateFieldPositionIntoCordinates()
-        if ifFirstClick:
-            self.gameHandler.moveFigure[0] = source
-        elif not ifFirstClick:
-            self.gameHandler.moveFigure[1] = source
+
 
     def checkIfNotTheSameColor(self, figureMove):
         terminalField = self.translateCordinatesIntoPositionInBoardArray(figureMove[1])
@@ -162,15 +184,7 @@ class BoardField(QGraphicsItem):
             possibilityOfMove = True
         return possibilityOfMove
 
-    def checkIfCorrectClicked(self):
-        playerColor = self.gameHandler.playerRound
-        posibleToChose = False
-        if self.figureChild != None:
-            if playerColor == self.figureChild.getFigureColor():
-                posibleToChose = True
-            else:
-                pass
-        return posibleToChose
+
 
     def setBoardPosition(self):
         self.boardSize = 8 * self.squareSize + 2 * self.boardOffset
@@ -213,3 +227,9 @@ class BoardField(QGraphicsItem):
     def updateFigurePosition(self):
         if self.figureChild.getFigureBoardPosition() != self.boardPosition:
             self.figureChild.boardPosition = self.boardPosition
+
+    def printXiFIsFigure(self):
+        if self.figureChild == None:
+            print(" ", end= " ")
+        else:
+            print("X", end= " ")

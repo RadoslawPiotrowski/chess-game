@@ -3,6 +3,8 @@ from PyQt5.QtGui import QPixmap, QPainter, QBrush, QColor,QIcon
 from PyQt5.QtWidgets import QWidget,QLineEdit, QFrame, QSplitter, QMessageBox,QVBoxLayout,QHBoxLayout, QGraphicsScene, QGraphicsView, QApplication, QPushButton, QGraphicsItem, QGraphicsPixmapItem
 from PyQt5.QtCore import Qt
 from ChessView import ChessView
+from pynput.keyboard import Key, Listener
+
 import sys
 
 class MainWindow(QWidget):
@@ -17,12 +19,12 @@ class MainWindow(QWidget):
     def windowArrangement(self):
 
         verticalBoxWithButtons = QVBoxLayout()
-
         buttonSplitter = QSplitter(Qt.Vertical)
         buttonSplitter.setFrameShape(QFrame.StyledPanel)
         buttonSplitter.addWidget(self.startButton)
         buttonSplitter.addWidget(self.endButton)
         buttonSplitter.addWidget(self.resetButton)
+        buttonSplitter.addWidget(self.replayButton)
         buttonSplitter.addWidget(self.clientButton)
         buttonSplitter.addWidget(self.serwerButton)
         verticalBoxWithButtons.addWidget(buttonSplitter)
@@ -48,6 +50,9 @@ class MainWindow(QWidget):
         self.resetButton = QPushButton("RESET GAME")
         self.resetButton.clicked.connect(self.resetGame)
 
+        self.replayButton = QPushButton("REPLAY GAME")
+        self.replayButton.clicked.connect(self.turnReplayON)
+
         self.clientButton = QPushButton("CLIENT")
         self.clientButton.clicked.connect(self.runClient)
 
@@ -65,11 +70,16 @@ class MainWindow(QWidget):
     def startGame(self):
         pass
 
+    def turnReplayON(self):
+        self.view.turnReplayMode()
+
     def endGame(self):
         pass
 
     def resetGame(self):
-        pass
+        self.view.resetTheGame()
+
+
 
     def setSceneAndView(self):
         self.view = ChessView()
@@ -95,9 +105,6 @@ class MainWindow(QWidget):
     #         event.accept()
     #     else:
     #         event.ignore()
-
-
-
 
 
 

@@ -83,19 +83,21 @@ class Figure():
         for i in range(upFieldsToCheck):
             yPos += 1
             if self.checkIfIsFree((fieldPos[0], yPos), gameBoard):
+                # print( " SPRAWDZAM ", end = " ")
+                # print( fieldPos[0],yPos)
                 attackingVerticalFields.append([fieldPos[0], yPos])
-            else:
-                attackingVerticalFields.append([fieldPos[0], yPos])
-                break
+            # elif not self.checkIfIsFree((fieldPos[0], yPos), gameBoard):
+            #     attackingVerticalFields.append([fieldPos[0], yPos])
+            #     break
         yPos = fieldPos[1]
-        for j in range (fieldPos[1],0,-1):
-            yPos -= 1
-            if self.checkIfIsFree((fieldPos[0], yPos), gameBoard):
-                attackingVerticalFields.append([fieldPos[0], yPos])
-            else:
-                attackingVerticalFields.append([fieldPos[0], yPos])
-                break
-        print(attackingVerticalFields)
+        # for j in range (fieldPos[1],0,-1):
+        #     yPos -= 1
+        #     if self.checkIfIsFree((fieldPos[0], yPos), gameBoard):
+        #         attackingVerticalFields.append([fieldPos[0], yPos])
+        #     else:
+        #         attackingVerticalFields.append([fieldPos[0], yPos])
+        #         break
+
 
 class Pawn(Figure):
     def __init__(self,figureColor, boardPostion):
@@ -112,11 +114,11 @@ class Pawn(Figure):
 
     def refreshFigureMovePosibilities(self, gameBoard = None):
         self.setMovePosibilities(gameBoard)
-        print(self.getMovePosibilities())
+        # print(self.getMovePosibilities())
 
     def checkIfFirstMoveDone(self):
-        print("TU WBILEM")
-        print(self.boardPosition)
+        # print("TU WBILEM")
+        # print(self.boardPosition)
         if self.figureColor == "white":
             if self.boardPosition[1] == "2":
                 self.firstMoveDone = False
@@ -125,7 +127,7 @@ class Pawn(Figure):
             if self.boardPosition[1] == "7":
                 self.firstMoveDone = False
             else: self.firstMoveDone = True
-        print(self.firstMoveDone)
+        # print(self.firstMoveDone)
 
     def setAttackFields(self):
         xPos, yPos = self.translateBoardPositionIntoPositionInBoardArray()
@@ -152,7 +154,7 @@ class Pawn(Figure):
     def setMovePosibilities(self, gameBoard = None):
         xPos, yPos = self.translateBoardPositionIntoPositionInBoardArray()
         movePosibility = []
-        print("TUTAJ")
+        # print("TUTAJ")
         self.setAttackFields()
         self.checkIfFirstMoveDone()
         if self.figureColor == "white":
@@ -335,7 +337,6 @@ class Knight(Figure):
     def setMovePosibilities(self, gameBoard = None):
         xPos, yPos = self.translateBoardPositionIntoPositionInBoardArray()
         movePosibility = []
-        print("TUTAJ")
         self.setAttackFields()
         self.checkIfFirstMoveDone()
         if self.figureColor == "white":
@@ -387,7 +388,6 @@ class Rook(Figure):
         print(self.getMovePosibilities())
 
     def checkIfFirstMoveDone(self):
-        print("TU WBILEM")
         print(self.boardPosition)
         if self.figureColor == "white":
             if self.boardPosition[1] == "2":
@@ -424,7 +424,6 @@ class Rook(Figure):
     def setMovePosibilities(self, gameBoard = None):
         xPos, yPos = self.translateBoardPositionIntoPositionInBoardArray()
         movePosibility = []
-        print("TUTAJ")
         self.setAttackFields()
         self.checkIfFirstMoveDone()
         if self.figureColor == "white":
@@ -476,7 +475,6 @@ class Bishop(Figure):
         print(self.getMovePosibilities())
 
     def checkIfFirstMoveDone(self):
-        print("TU WBILEM")
         print(self.boardPosition)
         if self.figureColor == "white":
             if self.boardPosition[1] == "2":
@@ -513,7 +511,6 @@ class Bishop(Figure):
     def setMovePosibilities(self, gameBoard = None):
         xPos, yPos = self.translateBoardPositionIntoPositionInBoardArray()
         movePosibility = []
-        print("TUTAJ")
         self.setAttackFields()
         self.checkIfFirstMoveDone()
         if self.figureColor == "white":
