@@ -48,7 +48,7 @@ class ChessView(QGraphicsView):
         self.blackPossibleMoves = None
         self.whitePossibleMoves = None
 
-
+        self.avaibleMovesWithPoints = None
 
         # XML part
         self.replayMode = False
@@ -176,12 +176,13 @@ class ChessView(QGraphicsView):
             d[str(key)] = possibleMovesList
         return d
 
-    def getTheBestMoveToDo(self):
+    def getAllTheMovesWithPoints(self):
         bestMove = None
         for figurePossibleMove in self.blackPossibleMoves:
             print(figurePossibleMove, end = " ")
-            for k,v in figurePossibleMove.items():
-                print(k, len(v))
+            possibleMoves = list(figurePossibleMove.values())[0]
+            fromFieldIdx = list(figurePossibleMove.keys())[0]
+            print(fromFieldIdx, possibleMoves)
         return bestMove
 
     def turnComputerPlayMode(self):
@@ -190,6 +191,9 @@ class ChessView(QGraphicsView):
 
     def getComputerPlayMode(self):
         return self.computerPlay
+
+    def setAvaibleMovesWithPoints(self, possibilitiesDict):
+        self.avaibleMovesWithPoints = possibilitiesDict
 # -------------- Points Of field ---------------------------------
     def updateAllFieldsPoints(self):
         for field in self.gameBoard:
