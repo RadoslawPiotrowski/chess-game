@@ -67,6 +67,9 @@ class ChessView(QGraphicsView):
 # --------------- Generating game ---------------------
     def resetTheGame(self):
         self.generateBoard()
+        self.moveFigure = [(-1,-1),(-1,-1)]
+        self.playerRound = "white"
+        self.readyToMoveFigure = False
         self.addingGameBoardToScene()
 
     def generateBoard(self):
@@ -176,12 +179,17 @@ class ChessView(QGraphicsView):
     def getTheBestMoveToDo(self):
         bestMove = None
         for figurePossibleMove in self.blackPossibleMoves:
-            print(figurePossibleMove)
+            print(figurePossibleMove, end = " ")
+            for k,v in figurePossibleMove.items():
+                print(k, len(v))
         return bestMove
 
     def turnComputerPlayMode(self):
         self.resetTheGame()
         self.computerPlay = True
+
+    def getComputerPlayMode(self):
+        return self.computerPlay
 # -------------- Points Of field ---------------------------------
     def updateAllFieldsPoints(self):
         for field in self.gameBoard:
@@ -194,6 +202,13 @@ class ChessView(QGraphicsView):
 
     def getReplayMode(self):
         return self.replayMode
+
+    def itIsPlayerMove(self):
+        playerMove = True
+        if self.computerPlay == True:
+            if self.playerRound == "black":
+                playerMove = False
+        return playerMove
 
 # -------------- XML File saving ------------------------
     def saveMoveToXml(self):

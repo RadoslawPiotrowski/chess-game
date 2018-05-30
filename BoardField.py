@@ -105,7 +105,7 @@ class BoardField(QGraphicsItem):
         return self.rectF
 
     def mousePressEvent(self, QGraphicsSceneMouseEvent):
-        if self.gameHandler.replayMode == False:
+        if self.gameHandler.getReplayMode() == False and self.gameHandler.itIsPlayerMove() == True:
             if self.isItPlayersFigure() and self.gameHandler.readyToMoveFigure == False:
                 self.chooseMovingFigure()
             elif self.isItPlayersFigure() and self.gameHandler.readyToMoveFigure == True:            #kliknięta inna nasza figura
