@@ -36,7 +36,7 @@ class ChessView(QGraphicsView):
         self.generateBoard()
         self.addingGameBoardToScene()
         self.printBoard()
-        self.debugPrint()
+
 
         # MOVE MANAGE
         self.moveFigure = [(-1,-1),(-1,-1)]
@@ -48,7 +48,7 @@ class ChessView(QGraphicsView):
         self.blackPossibleMoves = None
         self.whitePossibleMoves = None
 
-        self.computerListToCheck = None
+
 
         # XML part
         self.replayMode = False
@@ -58,6 +58,11 @@ class ChessView(QGraphicsView):
         self.createXmlFile()
 
         # Self playing algorithm
+
+        self.computerPlay = False
+        self.updateAllFieldsPoints()
+        self.debugPrint()
+
 
 # --------------- Generating game ---------------------
     def resetTheGame(self):
@@ -104,8 +109,14 @@ class ChessView(QGraphicsView):
         for i in range(self.boardWidht):
             print("")
             for j in range(self.boardHeight):
-                self.gameBoard[i*self.boardWidht + j].printXiFIsFigure()
+                self.printPointInPlaceOfFigure(i,j)
         print("\nDEBUG")
+
+    def printXInPlaceOfFigure(self, i , j):
+        self.gameBoard[i*self.boardWidht + j].printXiFIsFigure()
+
+    def printPointInPlaceOfFigure(self, i, j):
+        print(self.gameBoard[i*self.boardWidht + j].getFieldPoint(), end = " ")
 
     def addingGameBoardToScene(self):
         for i in range(self.boardWidht):
@@ -162,10 +173,19 @@ class ChessView(QGraphicsView):
             d[str(key)] = possibleMovesList
         return d
 
+    def getTheBestMoveToDo(self):
+        bestMove = None
+        for figurePossibleMove in self.blackPossibleMoves:
+            print(figurePossibleMove)
+        return bestMove
 
-
-
-
+    def turnComputerPlayMode(self):
+        self.resetTheGame()
+        self.computerPlay = True
+# -------------- Points Of field ---------------------------------
+    def updateAllFieldsPoints(self):
+        for field in self.gameBoard:
+            field.updateFieldPoint()
 # --------------- Replay Mode on ---------------------------------
     def turnReplayMode(self):
         self.resetTheGame()

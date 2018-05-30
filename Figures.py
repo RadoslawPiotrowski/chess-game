@@ -98,7 +98,6 @@ class Figure():
         #         attackingVerticalFields.append([fieldPos[0], yPos])
         #         break
 
-
 class Pawn(Figure):
     def __init__(self,figureColor, boardPostion):
         super().__init__(figureColor = figureColor, boardPostion = boardPostion)

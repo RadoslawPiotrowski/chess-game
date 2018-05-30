@@ -22,11 +22,13 @@ class MainWindow(QWidget):
         buttonSplitter = QSplitter(Qt.Vertical)
         buttonSplitter.setFrameShape(QFrame.StyledPanel)
         buttonSplitter.addWidget(self.startButton)
-        buttonSplitter.addWidget(self.endButton)
         buttonSplitter.addWidget(self.resetButton)
         buttonSplitter.addWidget(self.replayButton)
+        buttonSplitter.addWidget(self.computerPlayButton)
         buttonSplitter.addWidget(self.clientButton)
         buttonSplitter.addWidget(self.serwerButton)
+        buttonSplitter.addWidget(self.endButton)
+
         verticalBoxWithButtons.addWidget(buttonSplitter)
 
         verticalBoxWithScene = QVBoxLayout()
@@ -53,6 +55,9 @@ class MainWindow(QWidget):
         self.replayButton = QPushButton("REPLAY GAME")
         self.replayButton.clicked.connect(self.turnReplayON)
 
+        self.computerPlayButton = QPushButton("PLAY WITH COMPUTER")
+        self.computerPlayButton.clicked.connect(self.turnComputerPlayON)
+
         self.clientButton = QPushButton("CLIENT")
         self.clientButton.clicked.connect(self.runClient)
 
@@ -73,8 +78,11 @@ class MainWindow(QWidget):
     def turnReplayON(self):
         self.view.turnReplayMode()
 
+    def turnComputerPlayON(self):
+        self.view.turnComputerPlayMode()
+
     def endGame(self):
-        pass
+        self.close()
 
     def resetGame(self):
         self.view.resetTheGame()

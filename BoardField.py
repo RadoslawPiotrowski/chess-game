@@ -2,7 +2,15 @@ from PyQt5.QtWidgets import QGraphicsItem
 from PyQt5 import QtCore
 from Figures import *
 from PyQt5.QtGui import QPixmap
+from enum import Enum
 
+class FiguresPoints(Enum):
+    Pawn = 1
+    Knight = 3
+    Bishop = 3
+    Rook = 5
+    Queen = 9
+    King = 20
 
 class BoardField(QGraphicsItem):
     def __init__(self, xPosition, yPosition, color = None, squareSize = None, boardOffset = None, figureChild = None, parent = None):
@@ -22,7 +30,21 @@ class BoardField(QGraphicsItem):
         self.addFiguresToBoard()
 
     def __del__(self):
-        print (self.id, ' died')
+        print ('died')
+
+    def getFieldPoint(self):
+        return self.fieldPoint
+
+    def updateFieldPoint(self):
+        if self.figureChild != None:
+            points = self.getPointForField(type(self.figureChild).__name__)
+            self.fieldPoint = points
+        else:
+            self.fieldPoint = 0
+
+    def getPointForField(self, figureName):
+        point = FiguresPoints[figureName].value
+        return point
 
     def getHighlightField(self):
         return self.highlightField
@@ -105,6 +127,10 @@ class BoardField(QGraphicsItem):
         self.gameHandler.saveMoveToXml()
         self.resetFigureMoveArray()
         self.gameHandler.notHighlightAllFields()
+
+        #added staff
+        self.gameHandler.debugPrint()
+        self.gameHandler.getTheBestMoveToDo()
 
     def changeMovingFigure(self):
         self.gameHandler.notHighlightAllFields()
@@ -220,6 +246,7 @@ class BoardField(QGraphicsItem):
             painter.fillRect(self.xPosition, self.yPosition,self.squareSize,self.squareSize, QtCore.Qt.black)
 
     def updateSelf(self):
+        self.updateFieldPoint()
         self.update()
 
     def updateFigurePosition(self):
