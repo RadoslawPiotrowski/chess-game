@@ -63,8 +63,8 @@ class ChessView(QGraphicsView):
 
         self.computerPlay = False
         self.updateAllFieldsPoints()
-        self.refreshPossiblePlayersMoves()
-        # self.debugPrint()
+        self.setPlayersMovePointsPossibilities()
+        self.debugPrint()
 
 
 # --------------- Generating game ---------------------
@@ -195,13 +195,7 @@ class ChessView(QGraphicsView):
             d[str(key)] = possibleMovesList
         return d
 
-    def getAllTheMovesWithPoints(self):
-        movesToCalculate = None
-        if self.playerRound == "white":
-            movesToCalculate = self.whitePossibleMoves
-        elif self.playerRound == "black":
-            movesToCalculate = self.blackPossibleMoves
-        return self.getTheListOfMovesWithPoints(movesToCalculate)
+
 
 
     def getTheListOfMovesWithPoints(self, dictOfAllMoves):
@@ -219,10 +213,9 @@ class ChessView(QGraphicsView):
                 possibleMovesWithPoints.append(moveToSave)
         return possibleMovesWithPoints
 
-    def refreshPossiblePlayersMoves(self):
+    def setPlayersMovePointsPossibilities(self):
         self.refreshPlayerPossibleMoves()
-        self.setAvaibleMovesWithPoints(self.getAllTheMovesWithPoints())
-
+        self.setAvaibleMovesWithPoints()
 
     def turnComputerPlayMode(self):
         self.resetTheGame()
@@ -231,11 +224,18 @@ class ChessView(QGraphicsView):
     def getComputerPlayMode(self):
         return self.computerPlay
 
-    def setAvaibleMovesWithPoints(self, possibilitiesDict):
-        if self.playerRound == "white":
-            self.whiteAvaibleMovesWithPoints = possibilitiesDict
-        elif self.playerRound == "black":
-            self.blackAvaibleMovesWithPoints = possibilitiesDict
+    def setAvaibleMovesWithPoints(self):
+        whitePossibleMovesWithPoints = None
+        blackPossibleMovesWithPoints = None
+        for color in ("white","black"):
+            if color == "white":
+                movesToCalculate = self.whitePossibleMoves
+                whitePossibleMovesWithPoints = self.getTheListOfMovesWithPoints(movesToCalculate)
+            elif color == "black":
+                movesToCalculate = self.blackPossibleMoves
+                blackPossibleMovesWithPoints = self.getTheListOfMovesWithPoints(movesToCalculate)
+        self.whiteAvaibleMovesWithPoints = whitePossibleMovesWithPoints
+        self.blackAvaibleMovesWithPoints = blackPossibleMovesWithPoints
 
 # -------------- Points Of field ---------------------------------
     def updateAllFieldsPoints(self):

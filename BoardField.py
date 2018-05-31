@@ -130,8 +130,9 @@ class BoardField(QGraphicsItem):
         self.gameHandler.notHighlightAllFields()
 
         #added staff
+        self.gameHandler.setPlayersMovePointsPossibilities()
         self.gameHandler.debugPrint()
-        self.gameHandler.setAvaibleMovesWithPoints(self.gameHandler.getAllTheMovesWithPoints())
+
 
     def changeMovingFigure(self):
         self.gameHandler.notHighlightAllFields()
