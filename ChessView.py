@@ -6,6 +6,7 @@ from xml.etree.ElementTree import Element
 from xml.etree import ElementTree as ET
 from xml.dom import minidom
 import os.path
+import numpy as np
 
 
 import re
@@ -48,7 +49,8 @@ class ChessView(QGraphicsView):
         self.blackPossibleMoves = None
         self.whitePossibleMoves = None
 
-        self.avaibleMovesWithPoints = None
+        self.blackAvaibleMovesWithPoints = None
+        self.whiteAvaibleMovesWithPoints = None
 
         # XML part
         self.replayMode = False
@@ -61,6 +63,7 @@ class ChessView(QGraphicsView):
 
         self.computerPlay = False
         self.updateAllFieldsPoints()
+        self.refreshPossiblePlayersMoves()
         self.debugPrint()
 
 
@@ -104,6 +107,11 @@ class ChessView(QGraphicsView):
         yPos = cordinates[1]
         return ( 7 - yPos)*self.boardWidht + xPos
 
+    def translateFieldPositionIntoCordinates(self, positionInBoardArray):
+        xPos = positionInBoardArray % 8
+        yPos = 7 - (positionInBoardArray // 8)
+        return([xPos, yPos])
+
     def getClickedFigurePosition(self):
         return(self.moveFigure)
 
@@ -114,6 +122,10 @@ class ChessView(QGraphicsView):
             for j in range(self.boardHeight):
                 self.printPointInPlaceOfFigure(i,j)
         print("\nDEBUG")
+        print("MOVES WITH POINTS WHITE:\n")
+        for field in self.whiteAvaibleMovesWithPoints: print(field)
+        print("\nMOVES WITH POINTS BLACK:\n")
+        # for field in self.blackAvaibleMovesWithPoints: print(field)
 
     def printXInPlaceOfFigure(self, i , j):
         self.gameBoard[i*self.boardWidht + j].printXiFIsFigure()
@@ -177,13 +189,33 @@ class ChessView(QGraphicsView):
         return d
 
     def getAllTheMovesWithPoints(self):
-        bestMove = None
-        for figurePossibleMove in self.blackPossibleMoves:
-            print(figurePossibleMove, end = " ")
-            possibleMoves = list(figurePossibleMove.values())[0]
+        movesToCalculate = None
+        if self.playerRound == "white":
+            movesToCalculate = self.whitePossibleMoves
+        elif self.playerRound == "black":
+            movesToCalculate = self.blackPossibleMoves
+        return self.getTheListOfMovesWithPoints(movesToCalculate)
+
+
+    def getTheListOfMovesWithPoints(self, dictOfAllMoves):
+        possibleMovesWithPoints = []
+        for figurePossibleMove in dictOfAllMoves:
+            possibleMovesDestination = list(figurePossibleMove.values())[0]
             fromFieldIdx = list(figurePossibleMove.keys())[0]
-            print(fromFieldIdx, possibleMoves)
-        return bestMove
+            possibleMovesSource = self.translateFieldPositionIntoCordinates(int(fromFieldIdx))
+            for move in possibleMovesDestination:
+                fieldIdx = self.translateCordinatesIntoPositionInBoardArray(move)
+                fieldPoint = self.gameBoard[fieldIdx].getFieldPoint()
+                moveToSave = []
+                moveToSave.extend((possibleMovesSource,move))
+                moveToSave = moveToSave, fieldPoint
+                possibleMovesWithPoints.append(moveToSave)
+        return possibleMovesWithPoints
+
+    def refreshPossiblePlayersMoves(self):
+        self.refreshPlayerPossibleMoves(self.playerRound)
+        self.setAvaibleMovesWithPoints(self.getAllTheMovesWithPoints())
+
 
     def turnComputerPlayMode(self):
         self.resetTheGame()
@@ -193,7 +225,11 @@ class ChessView(QGraphicsView):
         return self.computerPlay
 
     def setAvaibleMovesWithPoints(self, possibilitiesDict):
-        self.avaibleMovesWithPoints = possibilitiesDict
+        if self.playerRound == "white":
+            self.whiteAvaibleMovesWithPoints = possibilitiesDict
+        elif self.playerRound == "black":
+            self.blackAvaibleMovesWithPoints = possibilitiesDict
+
 # -------------- Points Of field ---------------------------------
     def updateAllFieldsPoints(self):
         for field in self.gameBoard:

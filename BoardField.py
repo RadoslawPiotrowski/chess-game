@@ -124,6 +124,7 @@ class BoardField(QGraphicsItem):
     def chooseMovingDestination(self):
         self.changeRound()
         self.moveTheFigureToPlace()
+        self.gameHandler.refreshPlayerPossibleMoves(self.gameHandler.playerRound)
         self.gameHandler.saveMoveToXml()
         self.resetFigureMoveArray()
         self.gameHandler.notHighlightAllFields()
@@ -178,7 +179,7 @@ class BoardField(QGraphicsItem):
             self.gameHandler.playerRound = "black"
         elif self.gameHandler.playerRound == "black":
             self.gameHandler.playerRound = "white"
-        self.gameHandler.refreshPlayerPossibleMoves(self.gameHandler.playerRound)
+
 
     def moveTheFigureToPlace(self):
         figureMove = self.gameHandler.moveFigure
