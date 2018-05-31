@@ -64,7 +64,7 @@ class ChessView(QGraphicsView):
         self.computerPlay = False
         self.updateAllFieldsPoints()
         self.refreshPossiblePlayersMoves()
-        self.debugPrint()
+        # self.debugPrint()
 
 
 # --------------- Generating game ---------------------
@@ -125,7 +125,7 @@ class ChessView(QGraphicsView):
         print("MOVES WITH POINTS WHITE:\n")
         for field in self.whiteAvaibleMovesWithPoints: print(field)
         print("\nMOVES WITH POINTS BLACK:\n")
-        # for field in self.blackAvaibleMovesWithPoints: print(field)
+        for field in self.blackAvaibleMovesWithPoints: print(field)
 
     def printXInPlaceOfFigure(self, i , j):
         self.gameBoard[i*self.boardWidht + j].printXiFIsFigure()
@@ -159,20 +159,27 @@ class ChessView(QGraphicsView):
 
 # --------------- AI playing ------------------------------------
 
-    def refreshPlayerPossibleMoves(self, player):
-        possibleMoves = []
+    def refreshPlayerPossibleMoves(self):
+        whitePossibleMoves = []
+        blackPossibleMoves = []
         for field in self.gameBoard:
-            if field.isItPlayersFigure():
-                idxFieldWithFigure = field.translateCordinatesIntoPositionInBoardArray(field.translateFieldPositionIntoCordinates())
-                possibleMovesFromTheField = self.setDictOfPossibleMovesFromField(idxFieldWithFigure)
-                if possibleMovesFromTheField != None:
-                    possibleMoves.append(possibleMovesFromTheField)
-        if player == "white":
-            self.whitePossibleMoves = possibleMoves
-        elif player == "black":
-            self.blackPossibleMoves = possibleMoves
-        else:
-            print("MISTAKE")
+            if field.isHavingFigure():
+                possibleMoves = self.getPossibleMovesForPlayer(field)
+                if field.figureChild.getFigureColor() == "white":
+                    if possibleMoves != None:
+                        whitePossibleMoves.append(possibleMoves)
+                elif field.figureChild.getFigureColor() == "black":
+                    if possibleMoves != None:
+                        blackPossibleMoves.append(possibleMoves)
+        self.whitePossibleMoves = whitePossibleMoves
+        self.blackPossibleMoves = blackPossibleMoves
+
+
+    def getPossibleMovesForPlayer(self, field):
+        idxFieldWithFigure = field.translateCordinatesIntoPositionInBoardArray(field.translateFieldPositionIntoCordinates())
+        possibleMovesFromTheField = self.setDictOfPossibleMovesFromField(idxFieldWithFigure)
+        return possibleMovesFromTheField
+
 
     def setDictOfPossibleMovesFromField(self, idxFieldWithFigure):
         idxOfField = idxFieldWithFigure
@@ -213,7 +220,7 @@ class ChessView(QGraphicsView):
         return possibleMovesWithPoints
 
     def refreshPossiblePlayersMoves(self):
-        self.refreshPlayerPossibleMoves(self.playerRound)
+        self.refreshPlayerPossibleMoves()
         self.setAvaibleMovesWithPoints(self.getAllTheMovesWithPoints())
 
 
