@@ -26,7 +26,7 @@ class BoardField(QGraphicsItem):
         self.highlightField = False
         self.pressed = False
         self.rectF = QtCore.QRectF(self.xPosition, self.yPosition, self.squareSize, self.squareSize)
-        self.boardPosition = self.setBoardPosition()
+        self.boardPosition = self.setBoardPosition()                                                     #board Position means A1, A2, etc.
         self.addFiguresToBoard()
 
     def __del__(self):
@@ -48,6 +48,31 @@ class BoardField(QGraphicsItem):
 
     def getHighlightField(self):
         return self.highlightField
+
+    def getBoardPosition(self):
+        return self.boardPosition
+
+    def getFigureColor(self):
+        return self.figureChild.getFigureColor()
+
+    def getFieldPosition(self):
+        return (self.xPosition , self.yPosition)
+
+    def getFieldCordinates(self):
+        return self.translateFieldPositionIntoCordinates()
+
+    def getFieldPositionInBoardArray(self):
+        return self.translateCordinatesIntoPositionInBoardArray(self.getFieldCordinates())
+
+    def translateCordinatesIntoPositionInBoardArray(self, cordinates):
+        xPos = cordinates[0]
+        yPos = cordinates[1]
+        return ( 7 - yPos)*self.gameHandler.boardWidht + xPos
+
+    def translateFieldPositionIntoCordinates(self):
+        xPos = self.xPosition // self.squareSize
+        yPos = (self.boardSize - self.squareSize - self.yPosition) // self.squareSize
+        return(xPos, yPos)
 
     def addFiguresToBoard(self):
         self.addWhiteFigures()
@@ -124,13 +149,14 @@ class BoardField(QGraphicsItem):
     def chooseMovingDestination(self):
         self.changeRound()
         self.moveTheFigureToPlace()
-        self.gameHandler.refreshPlayerPossibleMoves()
         self.gameHandler.saveMoveToXml()
         self.resetFigureMoveArray()
         self.gameHandler.notHighlightAllFields()
 
         #added staff
-        self.gameHandler.setPlayersMovePointsPossibilities()
+        print("Odświeżam")
+        self.gameHandler.refreshPlayersMovePossibilitiesAndSetPoints()
+        print("Kończe odświeżanie")
         self.gameHandler.debugPrint()
 
 
@@ -141,7 +167,6 @@ class BoardField(QGraphicsItem):
     def chooseMovingFigure(self):
         self.gameHandler.readyToMoveFigure = True
         self.saveTheSourceMove()
-        self.figureChild.refreshFigureMovePosibilities(self.gameHandler.gameBoard)
         self.gameHandler.possibleMoves = self.figureChild.getMovePosibilities()
         self.gameHandler.highlightPossibleFieldMoves()
 
@@ -195,14 +220,9 @@ class BoardField(QGraphicsItem):
         self.gameHandler.gameBoard[terminalField].figureChild = self.gameHandler.gameBoard[initialField].figureChild
         self.gameHandler.gameBoard[terminalField].updateFigurePosition()
         self.gameHandler.gameBoard[initialField].figureChild = None
-        self.gameHandler.gameBoard[terminalField].figureChild.refreshFigureMovePosibilities(self.gameHandler.gameBoard)
         self.gameHandler.gameBoard[initialField].updateSelf()
         self.gameHandler.gameBoard[terminalField].updateSelf()
 
-    def translateCordinatesIntoPositionInBoardArray(self, cordinates):
-        xPos = cordinates[0]
-        yPos = cordinates[1]
-        return ( 7 - yPos)*self.gameHandler.boardWidht + xPos
 
     def resetFigureMoveArray(self):
         self.gameHandler.moveFigure = [(-1,-1),(-1,-1)]
@@ -225,19 +245,6 @@ class BoardField(QGraphicsItem):
         fieldCode = self.fieldLetter + self.fieldNumber
         return fieldCode
 
-    def translateFieldPositionIntoCordinates(self):
-        xPos = self.xPosition // self.squareSize
-        yPos = (self.boardSize - self.squareSize - self.yPosition) // self.squareSize
-        return(xPos, yPos)
-
-    def getBoardPosition(self):
-        return self.boardPosition
-
-    def getFigureColor(self):
-        return self.figureChild.getFigureColor()
-
-    def getFieldPosition(self):
-        return (self.xPosition , self.yPosition)
 
     def paint(self, painter, QStyleOptionGraphicsItem, widget = None):
         if self.highlightField:

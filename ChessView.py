@@ -7,6 +7,8 @@ from xml.etree import ElementTree as ET
 from xml.dom import minidom
 import os.path
 import numpy as np
+#TODO change tupple into new class of possible move and points
+#TODO change setting possible moves by global variables
 
 
 import re
@@ -63,7 +65,7 @@ class ChessView(QGraphicsView):
 
         self.computerPlay = False
         self.updateAllFieldsPoints()
-        self.setPlayersMovePointsPossibilities()
+        self.refreshPlayersMovePossibilitiesAndSetPoints()
         self.debugPrint()
 
 
@@ -120,12 +122,13 @@ class ChessView(QGraphicsView):
         for i in range(self.boardWidht):
             print("")
             for j in range(self.boardHeight):
-                self.printPointInPlaceOfFigure(i,j)
+                self.printXInPlaceOfFigure(i,j)
+                # self.printPointInPlaceOfFigure(i,j)
         print("\nDEBUG")
-        print("MOVES WITH POINTS WHITE:\n")
-        for field in self.whiteAvaibleMovesWithPoints: print(field)
-        print("\nMOVES WITH POINTS BLACK:\n")
-        for field in self.blackAvaibleMovesWithPoints: print(field)
+        # print("MOVES WITH POINTS WHITE:\n")
+        # for field in self.whiteAvaibleMovesWithPoints: print(field)
+        # print("\nMOVES WITH POINTS BLACK:\n")
+        # for field in self.blackAvaibleMovesWithPoints: print(field)
 
     def printXInPlaceOfFigure(self, i , j):
         self.gameBoard[i*self.boardWidht + j].printXiFIsFigure()
@@ -176,44 +179,47 @@ class ChessView(QGraphicsView):
 
 
     def getPossibleMovesForPlayer(self, field):
-        idxFieldWithFigure = field.translateCordinatesIntoPositionInBoardArray(field.translateFieldPositionIntoCordinates())
+        idxFieldWithFigure = field.getFieldPositionInBoardArray()
         possibleMovesFromTheField = self.setDictOfPossibleMovesFromField(idxFieldWithFigure)
         return possibleMovesFromTheField
 
 
     def setDictOfPossibleMovesFromField(self, idxFieldWithFigure):
         idxOfField = idxFieldWithFigure
-        self.gameBoard[idxOfField].figureChild.setMovePosibilities(self.gameBoard)
+        self.gameBoard[idxOfField].figureChild.refreshFigureMovePosibilities(self.gameBoard)
         figurePosibleMoves = self.gameBoard[idxOfField].figureChild.getMovePosibilities()
         dicRecordToAdd = self.createDictRecordOfFieldAndMoveOpportunity(idxOfField, figurePosibleMoves)
         return dicRecordToAdd
 
     def createDictRecordOfFieldAndMoveOpportunity(self, key, possibleMovesList):
-        d = None
-        if len(possibleMovesList) != 0:
+        d = []
+        if possibleMovesList is None:
+            d = []
+        elif len(possibleMovesList) != 0:
             d = {}
             d[str(key)] = possibleMovesList
+
         return d
-
-
-
 
     def getTheListOfMovesWithPoints(self, dictOfAllMoves):
         possibleMovesWithPoints = []
-        for figurePossibleMove in dictOfAllMoves:
-            possibleMovesDestination = list(figurePossibleMove.values())[0]
-            fromFieldIdx = list(figurePossibleMove.keys())[0]
-            possibleMovesSource = self.translateFieldPositionIntoCordinates(int(fromFieldIdx))
-            for move in possibleMovesDestination:
-                fieldIdx = self.translateCordinatesIntoPositionInBoardArray(move)
-                fieldPoint = self.gameBoard[fieldIdx].getFieldPoint()
-                moveToSave = []
-                moveToSave.extend((possibleMovesSource,move))
-                moveToSave = moveToSave, fieldPoint
-                possibleMovesWithPoints.append(moveToSave)
+        try:
+            for figurePossibleMove in dictOfAllMoves:
+                possibleMovesDestination = list(figurePossibleMove.values())[0]
+                fromFieldIdx = list(figurePossibleMove.keys())[0]
+                possibleMovesSource = self.translateFieldPositionIntoCordinates(int(fromFieldIdx))
+                for move in possibleMovesDestination:
+                    fieldIdx = self.translateCordinatesIntoPositionInBoardArray(move)
+                    fieldPoint = self.gameBoard[fieldIdx].getFieldPoint()
+                    moveToSave = []
+                    moveToSave.extend((possibleMovesSource,move))
+                    moveToSave = moveToSave, fieldPoint
+                    possibleMovesWithPoints.append(moveToSave)
+        except:
+            pass
         return possibleMovesWithPoints
 
-    def setPlayersMovePointsPossibilities(self):
+    def refreshPlayersMovePossibilitiesAndSetPoints(self):
         self.refreshPlayerPossibleMoves()
         self.setAvaibleMovesWithPoints()
 
