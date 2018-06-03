@@ -87,8 +87,6 @@ class MainWindow(QWidget):
     def resetGame(self):
         self.view.resetTheGame()
 
-
-
     def setSceneAndView(self):
         self.view = ChessView()
         # self.scene = QGraphicsScene(self)

@@ -5,12 +5,12 @@ from PyQt5.QtGui import QPixmap
 from enum import Enum
 
 class FiguresPoints(Enum):
-    Pawn = 1
-    Knight = 3
-    Bishop = 3
-    Rook = 5
-    Queen = 9
-    King = 20
+    Pawn = 10
+    Knight = 30
+    Bishop = 30
+    Rook = 50
+    Queen = 90
+    King = 900
 
 class BoardField(QGraphicsItem):
     def __init__(self, xPosition, yPosition, color = None, squareSize = None, boardOffset = None, figureChild = None, parent = None):
@@ -140,11 +140,26 @@ class BoardField(QGraphicsItem):
                 self.saveTheSourceMove()
                 if self.moveIsValid():
                     self.chooseMovingDestination()
+                    if self.gameHandler.getComputerPlayMode():
+                        self.aICalculationAndMove()
                 else:
                     self.gameHandler.readyToMoveFigure = True
                     print("NIE WŁAŚCIWY RUCH")
+        # elif self.gameHandler.itIsPlayerMove() == False:
+        #     self.aICalculationAndMove()
         # self.gameHandler.debugPrint()
+        # print("BEST MOVES")
+        # self.gameHandler.debugPrintAllBestMoves()
         self.update()
+
+    def aICalculationAndMove(self):
+        self.gameHandler.refreshPlayersMovePossibilitiesAndSetPoints()
+        computerMove = self.gameHandler.chooseRandomMoveFromListOfBestMoves(self.gameHandler.getBestBlackMoves())
+        print("MOVE CHOSED BY COMPUTER",computerMove)
+        self.gameHandler.minMaxAnalizing(self.gameHandler.getGameBoard())
+        self.gameHandler.makeFigureMove(computerMove)
+        self.gameHandler.refreshPlayersMovePossibilitiesAndSetPoints()
+        self.changeRound()
 
     def chooseMovingDestination(self):
         self.changeRound()
@@ -154,10 +169,8 @@ class BoardField(QGraphicsItem):
         self.gameHandler.notHighlightAllFields()
 
         #added staff
-        print("Odświeżam")
         self.gameHandler.refreshPlayersMovePossibilitiesAndSetPoints()
-        print("Kończe odświeżanie")
-        self.gameHandler.debugPrint()
+        # self.gameHandler.debugPrint()
 
 
     def changeMovingFigure(self):

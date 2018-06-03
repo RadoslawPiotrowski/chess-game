@@ -82,7 +82,6 @@ class Figure():
         fieldPossibleToMove = []
         allKnightAvaibleMoves = [[2,1],[2,-1],[1,2],[1,-2],[-1,2],[-1,-2],[-2,1],[-2,-1]]
         for knightMove in allKnightAvaibleMoves:
-            print(knightMove)
             fieldToCheck = copy.copy(fieldPos)
             fieldToCheck[0] += knightMove[0]
             fieldToCheck[1] += knightMove[1]
@@ -93,6 +92,7 @@ class Figure():
             else:
                 pass
         return fieldPossibleToMove
+
     # fieldPos [x,y], direction is int 1(right) or -1(left)
     def setVerticalFieldsForMovePossibility(self, fieldPos, gameBoard, direction):
         fieldPossibleToMove = []

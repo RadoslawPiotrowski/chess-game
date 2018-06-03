@@ -2,13 +2,16 @@ from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
 from PyQt5 import QtCore
 from PyQt5.QtGui import QColor
 from BoardField import BoardField
+from MoveWithPoint import MoveWithPoint
 from xml.etree.ElementTree import Element
 from xml.etree import ElementTree as ET
 from xml.dom import minidom
 import os.path
-import numpy as np
-#TODO change tupple into new class of possible move and points
-#TODO change setting possible moves by global variables
+import random
+import copy
+#TODO change setting possible moves to global variables
+#TODO create function to looking for the best move and creates list of best moves to make
+
 
 
 import re
@@ -54,6 +57,9 @@ class ChessView(QGraphicsView):
         self.blackAvaibleMovesWithPoints = None
         self.whiteAvaibleMovesWithPoints = None
 
+        self.bestWhiteMoves = None
+        self.bestBlackMoves = None
+
         # XML part
         self.replayMode = False
         self.readedXML = None
@@ -76,6 +82,14 @@ class ChessView(QGraphicsView):
         self.playerRound = "white"
         self.readyToMoveFigure = False
         self.addingGameBoardToScene()
+        self.refreshPlayersMovePossibilitiesAndSetPoints()
+        self.createXmlFile()
+        self.computerPlay = False
+        self.replayMode = False
+        self.readedXML = None
+        self.indexOfReplayNode = 0
+
+
 
     def generateBoard(self):
         self.gameBoard = []
@@ -103,6 +117,7 @@ class ChessView(QGraphicsView):
             for j in range(self.boardHeight):
                 print(self.gameBoard[i*self.boardWidht + j].getBoardPosition(), end =" ")
                 print(self.gameBoard[i*self.boardWidht + j].getFieldPosition(), end = " ")
+        print("")
 
     def translateCordinatesIntoPositionInBoardArray(self, cordinates):
         xPos = cordinates[0]
@@ -118,6 +133,7 @@ class ChessView(QGraphicsView):
         return(self.moveFigure)
 
     def debugPrint(self):
+
         print("\nDEBUG", end = "")
         for i in range(self.boardWidht):
             print("")
@@ -130,6 +146,18 @@ class ChessView(QGraphicsView):
         # print("\nMOVES WITH POINTS BLACK:\n")
         # for field in self.blackAvaibleMovesWithPoints: print(field)
 
+    def debugPrintAllBestMoves(self):
+        if self.playerRound == "white":
+            self.printAllPlayerBestMoves(self.bestWhiteMoves)
+        elif self.playerRound == "black":
+            self.printAllPlayerBestMoves(self.bestBlackMoves)
+            print(len(self.bestBlackMoves))
+
+    def printAllPlayerBestMoves(self, bestMoves):
+        for move in bestMoves:
+            print(move.getFigureMoveAndPoint())
+
+
     def printXInPlaceOfFigure(self, i , j):
         self.gameBoard[i*self.boardWidht + j].printXiFIsFigure()
 
@@ -140,6 +168,9 @@ class ChessView(QGraphicsView):
         for i in range(self.boardWidht):
             for j in range(self.boardHeight):
                 self.scene.addItem(self.gameBoard[i*self.boardWidht + j])
+
+    def getGameBoard(self):
+        return self.gameBoard
 
 
 # --------------- Making move --------------------------------------
@@ -162,6 +193,55 @@ class ChessView(QGraphicsView):
 
 # --------------- AI playing ------------------------------------
 
+    def chooseRandomMoveFromListOfBestMoves(self, listOFBestMoves):
+        if len(listOFBestMoves) == 1:
+            bestMove = listOFBestMoves[0].getFigureMove()
+        else:
+            randomMoveIdx = random.randint(0,len(listOFBestMoves) - 1)
+            bestMove = listOFBestMoves[randomMoveIdx].getFigureMove()
+        return bestMove
+
+# --------------- AI Min Max --------------------------------------
+
+    def minMaxAnalizing(self, gameBoard):
+        gameBoard = copy.copy(gameBoard)
+        print("JESTEM W ŚRODKU")
+
+
+
+
+    def getBestBlackMoves(self):
+        return self.bestBlackMoves
+
+    def turnComputerPlayMode(self):
+        self.resetTheGame()
+        self.computerPlay = True
+
+    def getComputerPlayMode(self):
+        return self.computerPlay
+
+    def getMostScoredMove(self, moveWithPoints):
+        lowestMovePoint = -1
+        for move in moveWithPoints:
+            point = move.getMovePoint()
+            if point >= lowestMovePoint:
+                lowestMovePoint = point
+        return lowestMovePoint
+
+    def getBestPossibleMoves(self, moveWithPoints):
+        bestMoves = []
+        lowestMovePoint = self.getMostScoredMove(moveWithPoints)
+        for move in moveWithPoints:
+            point = move.getMovePoint()
+            if point == lowestMovePoint:
+                bestMoves.append(move)
+        return bestMoves
+
+    def setBestMovesForPlayers(self):
+        self.bestWhiteMoves = self.getBestPossibleMoves(self.whiteAvaibleMovesWithPoints)
+        self.bestBlackMoves = self.getBestPossibleMoves(self.blackAvaibleMovesWithPoints)
+
+
     def refreshPlayerPossibleMoves(self):
         whitePossibleMoves = []
         blackPossibleMoves = []
@@ -169,10 +249,10 @@ class ChessView(QGraphicsView):
             if field.isHavingFigure():
                 possibleMoves = self.getPossibleMovesForPlayer(field)
                 if field.figureChild.getFigureColor() == "white":
-                    if possibleMoves != None:
+                    if possibleMoves != None and possibleMoves != []:
                         whitePossibleMoves.append(possibleMoves)
                 elif field.figureChild.getFigureColor() == "black":
-                    if possibleMoves != None:
+                    if possibleMoves != None and possibleMoves != []:
                         blackPossibleMoves.append(possibleMoves)
         self.whitePossibleMoves = whitePossibleMoves
         self.blackPossibleMoves = blackPossibleMoves
@@ -203,6 +283,7 @@ class ChessView(QGraphicsView):
 
     def getTheListOfMovesWithPoints(self, dictOfAllMoves):
         possibleMovesWithPoints = []
+        # print("Kolor: ",self.playerRound, len(dictOfAllMoves))
         try:
             for figurePossibleMove in dictOfAllMoves:
                 possibleMovesDestination = list(figurePossibleMove.values())[0]
@@ -211,33 +292,29 @@ class ChessView(QGraphicsView):
                 for move in possibleMovesDestination:
                     fieldIdx = self.translateCordinatesIntoPositionInBoardArray(move)
                     fieldPoint = self.gameBoard[fieldIdx].getFieldPoint()
-                    moveToSave = []
-                    moveToSave.extend((possibleMovesSource,move))
-                    moveToSave = moveToSave, fieldPoint
+                    moveToSave =[tuple(possibleMovesSource),tuple(move)]
+                    moveToSave = MoveWithPoint(moveToSave, fieldPoint)
                     possibleMovesWithPoints.append(moveToSave)
         except:
             pass
+        # print("Kolor: ",self.playerRound, len(possibleMovesWithPoints))
         return possibleMovesWithPoints
 
     def refreshPlayersMovePossibilitiesAndSetPoints(self):
         self.refreshPlayerPossibleMoves()
         self.setAvaibleMovesWithPoints()
-
-    def turnComputerPlayMode(self):
-        self.resetTheGame()
-        self.computerPlay = True
-
-    def getComputerPlayMode(self):
-        return self.computerPlay
+        self.setBestMovesForPlayers()
 
     def setAvaibleMovesWithPoints(self):
         whitePossibleMovesWithPoints = None
         blackPossibleMovesWithPoints = None
+        # print(self.whitePossibleMoves)
+        # print(self.blackPossibleMoves)
         for color in ("white","black"):
             if color == "white":
                 movesToCalculate = self.whitePossibleMoves
                 whitePossibleMovesWithPoints = self.getTheListOfMovesWithPoints(movesToCalculate)
-            elif color == "black":
+            if color == "black":
                 movesToCalculate = self.blackPossibleMoves
                 blackPossibleMovesWithPoints = self.getTheListOfMovesWithPoints(movesToCalculate)
         self.whiteAvaibleMovesWithPoints = whitePossibleMovesWithPoints
